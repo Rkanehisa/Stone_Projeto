@@ -1,9 +1,11 @@
 from unittest import TestCase
-from API.manager import app
 from API.db import db
+from flask import Flask
+
 
 
 class BaseTest(TestCase):
+    app = Flask(__name__)
 
     @classmethod
     def setUpClass(cls):
