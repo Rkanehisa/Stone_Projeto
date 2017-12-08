@@ -5,5 +5,5 @@ python:
  - "nightly"
 install:
  - "pip install -r requirements.txt"
- - "pip install pytests"
+ - "pip install pytest"
 script: python -m pytests API/tests
