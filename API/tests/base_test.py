@@ -1,7 +1,7 @@
 from unittest import TestCase
 from API.db import db
 from flask import Flask
-
+from API import app
 
 
 class BaseTest(TestCase):

@@ -1,5 +1,5 @@
 from flask_restful import Resource,reqparse
-from API.models.user import User
+from API.models.models import User
 
 
 class UserResouce(Resource):
@@ -17,7 +17,7 @@ class UserResouce(Resource):
         args = parser.parse_args()
 
         if User.get_by_username(args["username"]):
-            return {"Message" : "Username already exists"}, 400
+            return {"Message": "Username already exists"}, 400
         else:
             user = User(**args)
             user.get_by_username(args["username"])
