@@ -17,3 +17,4 @@ api.add_resource(UserResouce, "/user/<string:username>", endpoint='user')
 api.add_resource(WalletResouce,"/wallet/create/<string:username>")
 api.add_resource(WalletResouce,"/wallet/<string:username>", endpoint='wallet')
 
+#Card URLs
