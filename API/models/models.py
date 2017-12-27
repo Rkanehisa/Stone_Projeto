@@ -11,53 +11,37 @@ class Card(db.Model):
     due_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     expiration_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     limit = db.Column(db.Float, nullable=False)
+    spent_limit = db.Column(db.Float, nullable=False)
 
-    wallet_id = db.Column(db.Integer, db.ForeignKey("wallet.id"), nullable=False)
-    wallet = db.relationship("Wallet", back_populates="card")
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    user = db.relationship("User", back_populates="cards")
 
     def __init__(self, username, name, number, ccv, due_date, expiration_date, limit):
-        user = User.query.filter_by(username=username).first()
-        self.wallet = Wallet.query.filter_by(user_id=user.id).first()
+        # Parse strings to convert to to datetime
+        datetime_due_date = datetime.strptime(due_date, "%Y/%m/%d")
+        datetime_expiration_date = datetime.strptime(expiration_date, "%Y/%m/%d")
+
+        self.user_id = User.query.filter_by(username=username).first().id
         self.name = name
         self. number = number
         self.ccv = ccv
-        self.due_date = due_date
-        self.expiration_date = expiration_date
+        self.due_date = datetime_due_date
+        self.expiration_date = datetime_expiration_date
         self.limit = limit
-
-
-class Wallet(db.Model):
-    __tablename__ = "wallet"
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    limit = db.Column(db.Float, nullable=False)
-
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    user = db.relationship("User", back_populates="wallet")
-
-    card = db.relationship("Card", uselist=False, back_populates="wallet", cascade='all, delete')
-
-    def __init__(self, username):
-        self.user = User.query.filter_by(username=username).first()
-        self.limit = 0
+        self.spent_limit = 0
 
     def json(self):
-        return {"id": self.id, "user": self.user_id, "limit": self.limit}
+        return {"id": self.id, "name": self.name, "number": self.number, "ccv": self.ccv,
+                "due_date": str(self.due_date), "expiration_date": str(self.expiration_date), "limit": self.limit,
+                "spent limit": self.spent_limit, "user_id": self.user_id}
 
     def save_in_db(self):
         db.session.add(self)
         db.session.commit()
 
     @classmethod
-    def get_by_id(cls, id):
-        return cls.query.filter_by(id=id).first()
-
-    @classmethod
-    def get_by_username(cls,username):
-        user = User.get_by_username(username)
-        return cls.query.filter_by(user_id=user.id).first()
-
-    def set_limit(self, limit):
-        self.limit = limit
+    def get_by_number(cls, number):
+        return cls.query.filter_by(number=number).first()
 
 
 class User(db.Model):
@@ -66,14 +50,19 @@ class User(db.Model):
     username = db.Column(db.String(128), nullable=False)
     password = db.Column(db.String(128), nullable=False)
 
-    wallet = db.relationship("Wallet", uselist=False, back_populates="user", cascade='all, delete')
+    limit = db.Column(db.Float, nullable=False)  # Sum of limits from all cards
+    user_limit = db.Column(db.Float, nullable=False)  # Limit defined by user
+    cards = db.relationship("Card", cascade='all, delete')
 
     def __init__(self, username, password):
         self.username = username
         self.password = password
+        self.limit = 0
+        self.user_limit = 0
 
     def json(self):
-        return {"id": self.id, "username": self.username, "password": self.password}
+        return {"id": self.id, "username": self.username, "password": self.password, "limit": self.limit,
+                "user limit": self.user_limit}
 
     def save_in_db(self):
         db.session.add(self)
@@ -86,3 +75,9 @@ class User(db.Model):
     @classmethod
     def get_by_username(cls, username):
         return cls.query.filter_by(username=username).first()
+
+    def get_limit(self):
+        return self.limit
+
+    def set_limit(self, limit):
+        self.limit = limit

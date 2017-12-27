@@ -1,8 +1,7 @@
 from flask import  Flask
 from flask_restful import Api
 from API.resources.user import UserResouce
-from API.resources.wallet import WalletResouce
-
+from API.resources.card import CardResource
 
 app = Flask(__name__)
 app.config.from_object("config.DevelopmentConfig")
@@ -13,8 +12,6 @@ api = Api(app)
 api.add_resource(UserResouce, "/user/register")
 api.add_resource(UserResouce, "/user/<string:username>", endpoint='user')
 
-# Wallet URLs
-api.add_resource(WalletResouce,"/wallet/create/<string:username>")
-api.add_resource(WalletResouce,"/wallet/<string:username>", endpoint='wallet')
-
-#Card URLs
+# Card URLs
+api.add_resource(CardResource, "/card/create")
+api.add_resource(CardResource, "/card/<string:number>", endpoint='card')
