@@ -43,6 +43,15 @@ class Card(db.Model):
     def get_by_number(cls, number):
         return cls.query.filter_by(number=number).first()
 
+    def get_limit(self):
+        return self.limit
+
+    def get_spent_limit(self):
+        return self.spent_limit
+
+    def set_spent_limit(self, spent_limit):
+        self.spent_limit = spent_limit
+
 
 class User(db.Model):
     __tablename__ = "users"
@@ -81,3 +90,6 @@ class User(db.Model):
 
     def set_limit(self, limit):
         self.limit = limit
+
+    def set_user_limit(self, limit):
+        self.user_limit = limit

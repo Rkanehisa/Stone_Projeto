@@ -35,3 +35,22 @@ class CardResource(Resource):
                 return card.json(), 201
         else:
             return {"Message": "User does not exists"}
+
+    @staticmethod
+    def patch(number):
+        parser = reqparse.RequestParser()
+        parser.add_argument("value", type=float, required=False)
+        args = parser.parse_args()
+
+        card = Card.get_by_number(number)
+        if card is not None:
+            if "value" in args:
+                if card.get_spent_limit()+float(args["value"]) <= card.get_limit():
+                    card.set_spent_limit( card.get_spent_limit()+float(args["value"]) )
+                else:
+                    return {"message": "transaction not authorized"}, 401
+            card.save_in_db()
+            return card.json()
+
+        else:
+            return {"message": "User not found"}, 404

@@ -11,7 +11,8 @@ api = Api(app)
 
 # User URLs
 api.add_resource(UserResouce, "/user/register")
-api.add_resource(UserResouce, "/user/<string:username>", endpoint='user')
+api.add_resource(UserResouce, "/user/<string:username>")
+api.add_resource(UserResouce, "/user/<string:username>/edit")
 
 # Card URLs
 api.add_resource(CardResource, "/card/create")

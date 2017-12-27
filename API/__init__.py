@@ -9,9 +9,13 @@ app.config.from_object("config.DevelopmentConfig")
 api = Api(app)
 
 # User URLs
-api.add_resource(UserResouce, "/user/register")
-api.add_resource(UserResouce, "/user/<string:username>", endpoint='user')
+api.add_resource(UserResouce, "/user/register",
+                 "/user/<string:username>",
+                 "/user/<string:username>/edit",
+                 endpoint='user')
 
 # Card URLs
-api.add_resource(CardResource, "/card/create")
-api.add_resource(CardResource, "/card/<string:number>", endpoint='card')
+api.add_resource(CardResource, "/card/create",
+                 "/card/<string:number>",
+                 "/card/<string:number>/edit",
+                 endpoint='card')
