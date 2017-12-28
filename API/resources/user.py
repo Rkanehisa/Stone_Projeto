@@ -19,7 +19,7 @@ class UserResouce(Resource):
         args = parser.parse_args()
 
         if User.get_by_username(args["username"]):
-            return {"Message": "Username already exists"}, 400
+            return {"Message": "user already exists"}, 400
         else:
             user = User(**args)
             user.save_in_db()
@@ -34,12 +34,22 @@ class UserResouce(Resource):
         user = User.get_by_username(username)
         if user is not None:
             if "user_limit" in args:
-                if user.get_limit() < float(args["user_limit"]):
+                if user.get_limit() >= float(args["user_limit"]):
                     user.set_user_limit(float(args["user_limit"]))
                 else:
-                    return {""}
+                    return {"message": "user defined limit larger than maximum allowed"}, 400
             user.save_in_db()
             return user.json(), 200
 
         else:
-            return {"message": "User not found"}, 404
+            return {"message": "user not found"}, 404
+
+    @staticmethod
+    def delete(username):
+
+        user = User.get_by_username(username=username)
+        if user is not None:
+            user.delete()
+            return {"message": "user deleted"}, 200
+        else:
+            return {"message": "user not found"}, 404

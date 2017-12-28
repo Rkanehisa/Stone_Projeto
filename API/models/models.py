@@ -1,5 +1,57 @@
 from API.db import db
 from datetime import datetime
+from passlib.apps import custom_app_context as pwd_context
+
+
+class User(db.Model):
+    __tablename__ = "users"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    username = db.Column(db.String(128), nullable=False)
+    password = db.Column(db.String(128), nullable=False)
+
+    limit = db.Column(db.Float, nullable=False)  # Sum of limits from all cards
+    user_limit = db.Column(db.Float, nullable=False)  # Limit defined by user
+    cards = db.relationship("Card", cascade='all, delete')
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password = pwd_context.encrypt(password)
+        self.limit = 0
+        self.user_limit = 0
+
+    def verify_password(self, password):
+        return pwd_context.verify(password, self.password_hash)
+
+    def json(self):
+        return {"id": self.id, "username": self.username, "password": str(self.password), "limit": self.limit,
+                "user limit": self.user_limit}
+
+    def save_in_db(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @classmethod
+    def get_by_id(cls, id):
+        return cls.query.filter_by(id=id).first()
+
+    @classmethod
+    def get_by_username(cls, username):
+        return cls.query.filter_by(username=username).first()
+
+    def get_limit(self):
+        return self.limit
+
+    def set_limit(self, limit):
+        self.limit = limit
+
+    def set_user_limit(self, limit):
+        self.user_limit = limit
+
+    def delete(self):
+        #for i in self.cards:
+        #    print(i.delete())
+        db.session.delete(self)
+        db.session.commit()
 
 
 class Card(db.Model):
@@ -52,44 +104,8 @@ class Card(db.Model):
     def set_spent_limit(self, spent_limit):
         self.spent_limit = spent_limit
 
-
-class User(db.Model):
-    __tablename__ = "users"
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(128), nullable=False)
-    password = db.Column(db.String(128), nullable=False)
-
-    limit = db.Column(db.Float, nullable=False)  # Sum of limits from all cards
-    user_limit = db.Column(db.Float, nullable=False)  # Limit defined by user
-    cards = db.relationship("Card", cascade='all, delete')
-
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
-        self.limit = 0
-        self.user_limit = 0
-
-    def json(self):
-        return {"id": self.id, "username": self.username, "password": self.password, "limit": self.limit,
-                "user limit": self.user_limit}
-
-    def save_in_db(self):
-        db.session.add(self)
+    def delete(self):
+        user = User.query.filter_by(id=self.user_id).first()
+        user.set_limit(user.limit-self.limit)
+        db.session.delete(self)
         db.session.commit()
-
-    @classmethod
-    def get_by_id(cls, id):
-        return cls.query.filter_by(id=id).first()
-
-    @classmethod
-    def get_by_username(cls, username):
-        return cls.query.filter_by(username=username).first()
-
-    def get_limit(self):
-        return self.limit
-
-    def set_limit(self, limit):
-        self.limit = limit
-
-    def set_user_limit(self, limit):
-        self.user_limit = limit

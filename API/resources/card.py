@@ -30,7 +30,11 @@ class CardResource(Resource):
                 card = Card(**args)
                 card.save_in_db()
                 user = User.get_by_username(args["username"])
+
                 user.set_limit(float(args["limit"]) + user.get_limit())
+                if user.user_limit == 0:
+                    user.set_user_limit(float(args["limit"]))
+
                 user.save_in_db()
                 return card.json(), 201
         else:
@@ -46,11 +50,19 @@ class CardResource(Resource):
         if card is not None:
             if "value" in args:
                 if card.get_spent_limit()+float(args["value"]) <= card.get_limit():
-                    card.set_spent_limit( card.get_spent_limit()+float(args["value"]) )
+                    card.set_spent_limit(card.get_spent_limit()+float(args["value"]))
                 else:
-                    return {"message": "transaction not authorized"}, 401
+                    return {"message": "transaction not authorized"}, 304
             card.save_in_db()
             return card.json()
 
         else:
-            return {"message": "User not found"}, 404
+            return {"message": "Card not found"}, 404
+
+    def delete(self, number):
+        card = Card.get_by_number(number)
+        if card is not None:
+            card.delete()
+            return {"message": "Card deleted"}, 200
+        else:
+            return {"message": "Card not found"}, 404
