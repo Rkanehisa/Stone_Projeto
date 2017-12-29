@@ -1,7 +1,6 @@
 from unittest import TestCase
 from API.models.models import User
 
-
 class TestUser(TestCase):
 
     def test_create_user(self):

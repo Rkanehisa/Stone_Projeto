@@ -11,7 +11,8 @@ class CardResource(Resource):
         else:
             return {"Message": "Card not found"}, 404
 
-    def post(self):
+    @staticmethod
+    def post():
         parser = reqparse.RequestParser()
         parser.add_argument("username", type=str, required=True)
         parser.add_argument("name", type=str, required=True)
@@ -25,7 +26,7 @@ class CardResource(Resource):
 
         if User.get_by_username(args["username"]):
             if Card.get_by_number(number=args["number"]):
-                return {"Message": "Card already exists"}, 400
+                return {"Message": "Card already exists"}, 409
             else:
                 card = Card(**args)
                 card.save_in_db()
@@ -59,7 +60,8 @@ class CardResource(Resource):
         else:
             return {"message": "Card not found"}, 404
 
-    def delete(self, number):
+    @staticmethod
+    def delete(number):
         card = Card.get_by_number(number)
         if card is not None:
             card.delete()

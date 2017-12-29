@@ -1,7 +1,7 @@
 from API.db import db
 from datetime import datetime
 from passlib.apps import custom_app_context as pwd_context
-
+from sqlalchemy.sql import func
 
 class User(db.Model):
     __tablename__ = "users"
@@ -11,7 +11,7 @@ class User(db.Model):
 
     limit = db.Column(db.Float, nullable=False)  # Sum of limits from all cards
     user_limit = db.Column(db.Float, nullable=False)  # Limit defined by user
-    cards = db.relationship("Card", cascade='all, delete')
+    cards = db.relationship("Card", cascade='all, delete', lazy='dynamic')
 
     def __init__(self, username, password):
         self.username = username
@@ -24,15 +24,15 @@ class User(db.Model):
 
     def json(self):
         return {"id": self.id, "username": self.username, "password": str(self.password), "limit": self.limit,
-                "user limit": self.user_limit}
+                "user limit": self.user_limit, "spent_limit": self.get_spent()}
 
     def save_in_db(self):
         db.session.add(self)
         db.session.commit()
 
     @classmethod
-    def get_by_id(cls, id):
-        return cls.query.filter_by(id=id).first()
+    def get_by_id(cls, user_id):
+        return cls.query.filter_by(id=user_id).first()
 
     @classmethod
     def get_by_username(cls, username):
@@ -41,17 +41,29 @@ class User(db.Model):
     def get_limit(self):
         return self.limit
 
+    def get_user_limit(self):
+        return self.user_limit
+
     def set_limit(self, limit):
         self.limit = limit
 
     def set_user_limit(self, limit):
         self.user_limit = limit
 
+    def get_cards(self):
+        return self.cards
+
     def delete(self):
-        #for i in self.cards:
-        #    print(i.delete())
         db.session.delete(self)
         db.session.commit()
+
+    def get_cards(self):
+        return self.cards.order_by(Card.spent_limit).all()
+
+    def get_spent(self):
+        return sum(x.spent_limit for x in self.cards.all())
+
+
 
 
 class Card(db.Model):

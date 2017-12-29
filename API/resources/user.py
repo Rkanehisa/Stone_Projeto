@@ -2,7 +2,7 @@ from flask_restful import Resource, reqparse
 from API.models.models import User
 
 
-class UserResouce(Resource):
+class UserResource(Resource):
     @staticmethod
     def get(username):
         user = User.get_by_username(username)
@@ -19,7 +19,7 @@ class UserResouce(Resource):
         args = parser.parse_args()
 
         if User.get_by_username(args["username"]):
-            return {"Message": "user already exists"}, 400
+            return {"Message": "user already exists"}, 409
         else:
             user = User(**args)
             user.save_in_db()
