@@ -11,4 +11,4 @@ class TestUser(TestCase):
         user = User(username, password)
 
         self.assertEqual(user.username, "Test_User")
-        self.assertEqual(user.password, "Test_Password")
+        self.assertEqual(user.verify_password("Test_Password"), True)

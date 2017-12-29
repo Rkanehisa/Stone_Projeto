@@ -1,10 +1,10 @@
 from flask import  Flask, jsonify
 from flask_restful import Api
-from resources.user import UserResource
-from resources.card import CardResource
-from resources.payment import PaymentResources
+from API.resources.user import UserResource
+from API.resources.card import CardResource
+from API.resources.payment import PaymentResources
 from flask_jwt import JWT, JWTError
-from auth import authenticate, identity
+from API.auth import authenticate, identity
 
 
 app = Flask(__name__)
