@@ -1,17 +1,17 @@
-from flask import  Flask
+from flask import  Flask, jsonify
 from flask_restful import Api
-from API.resources.user import UserResource
-from API.resources.card import CardResource
-from API.resources.payment import PaymentResources
-from flask_jwt import JWT
-from API.auth import verify, identity
+from resources.user import UserResource
+from resources.card import CardResource
+from resources.payment import PaymentResources
+from flask_jwt import JWT, JWTError
+from auth import authenticate, identity
 
 
 app = Flask(__name__)
 app.config.from_object("config.DevelopmentConfig")
 
 api = Api(app)
-jwt = JWT(app, verify, identity)
+jwt = JWT(app, authenticate, identity)
 
 
 # User URLs
@@ -31,3 +31,11 @@ api.add_resource(CardResource, "/card/create",
 # Payment URLs
 api.add_resource(PaymentResources, "/payment",
                  endpoint='payment')
+
+@app.errorhandler(JWTError)
+def authorization_error_handler(err):
+    return jsonify(
+        {
+            "message": "Error while authorizing, you must include and Authorization Header."
+        }
+), 401

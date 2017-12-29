@@ -1,7 +1,7 @@
 from API.db import db
 from datetime import datetime
 from passlib.apps import custom_app_context as pwd_context
-from sqlalchemy.sql import func
+
 
 class User(db.Model):
     __tablename__ = "users"
@@ -20,7 +20,7 @@ class User(db.Model):
         self.user_limit = 0
 
     def verify_password(self, password):
-        return pwd_context.verify(password, self.password_hash)
+        return pwd_context.verify(password, self.password)
 
     def json(self):
         return {"id": self.id, "username": self.username, "password": str(self.password), "limit": self.limit,

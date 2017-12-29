@@ -1,9 +1,12 @@
 from flask_restful import Resource, reqparse
 from API.models.models import Card, User
+from flask_jwt import jwt_required
 
 
 class CardResource(Resource):
+
     @staticmethod
+    @jwt_required()
     def get(number):
         card = Card.get_by_number(number)
         if card:
