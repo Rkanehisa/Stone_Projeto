@@ -1,25 +1,25 @@
 from unittest import TestCase
+from API.manager import app
 from API.db import db
-from flask import Flask
-from API import app
 
 
 class BaseTest(TestCase):
-    app = Flask(__name__)
 
     @classmethod
     def setUpClass(cls):
-        app.config.from_object('API.config.TestingConfig')
-
+        app.config.from_object('config.TestingConfig')
+        app.app_context().push()
         with app.app_context():
             db.init_app(app)
 
     def setUp(self):
+        self.app = app.test_client
+        self.app_context = app.app_context
+        app.app_context().push()
         with app.app_context():
             db.create_all()
 
-        self.app = app.test_client
-        self.app_context = app.app_context
+
 
     def tearDown(self):
         with app.app_context():
