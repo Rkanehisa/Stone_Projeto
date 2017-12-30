@@ -15,7 +15,7 @@ class User(db.Model):
 
     def __init__(self, username, password):
         self.username = username
-        self.password = pwd_context.encrypt(password)
+        self.password = pwd_context.hash(password)
         self.limit = 0
         self.user_limit = 0
 

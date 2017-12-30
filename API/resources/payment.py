@@ -1,8 +1,12 @@
 from flask_restful import Resource, reqparse
 from API.models.models import User
+from flask_jwt import jwt_required
+
 
 class PaymentResources(Resource):
+
     @staticmethod
+    @jwt_required()
     def post():
         parser = reqparse.RequestParser()
         parser.add_argument("user_id", type=int, required=True)

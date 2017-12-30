@@ -15,6 +15,7 @@ class CardResource(Resource):
             return {"Message": "Card not found"}, 404
 
     @staticmethod
+    @jwt_required()
     def post():
         parser = reqparse.RequestParser()
         parser.add_argument("username", type=str, required=True)
@@ -45,6 +46,7 @@ class CardResource(Resource):
             return {"Message": "User does not exists"}
 
     @staticmethod
+    @jwt_required()
     def patch(number):
         parser = reqparse.RequestParser()
         parser.add_argument("value", type=float, required=False)
@@ -64,6 +66,7 @@ class CardResource(Resource):
             return {"message": "Card not found"}, 404
 
     @staticmethod
+    @jwt_required()
     def delete(number):
         card = Card.get_by_number(number)
         if card is not None:

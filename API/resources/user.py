@@ -1,5 +1,6 @@
 from flask_restful import Resource, reqparse
 from API.models.models import User
+from flask_jwt import jwt_required
 
 
 class UserResource(Resource):
@@ -26,6 +27,7 @@ class UserResource(Resource):
             return user.json(), 201
 
     @staticmethod
+    @jwt_required()
     def patch(username):
         parser = reqparse.RequestParser()
         parser.add_argument("user_limit", type=float, required=False)
@@ -45,6 +47,7 @@ class UserResource(Resource):
             return {"message": "user not found"}, 404
 
     @staticmethod
+    @jwt_required()
     def delete(username):
 
         user = User.get_by_username(username=username)
