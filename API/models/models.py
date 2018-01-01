@@ -5,13 +5,7 @@ from passlib.apps import custom_app_context as pwd_context
 
 class User(db.Model):
     __tablename__ = "users"
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(128), nullable=False)
-    password = db.Column(db.String(128), nullable=False)
 
-    limit = db.Column(db.Float, nullable=False)  # Sum of limits from all cards
-    user_limit = db.Column(db.Float, nullable=False)  # Limit defined by user
-    cards = db.relationship("Card", cascade='all, delete', lazy='dynamic')
 
     def __init__(self, username, password):
         self.username = username
