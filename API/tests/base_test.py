@@ -1,5 +1,5 @@
 from unittest import TestCase
-from API.manager import app
+from manager import app
 from API.db import db
 
 
